@@ -1,22 +1,48 @@
 version: 2.1
 
 jobs:
-  build:
+  build-and-test:
     docker:
-      - image: cimg/node:18.17
+      - image: cimg/node:18.17  # Node.js 18 for both frontend and backend
+    working_directory: ~/project
     steps:
-      - checkout
+      - checkout  # Clone the repository
+
+      # Frontend Setup and Test
       - run:
-          name: Install dependencies
-          command: cd frontend/frontend && npm install
+          name: Install Frontend Dependencies
+          command: |
+            cd frontend/frontend
+            npm install
       - run:
-          name: Build React App
-          command: cd frontend/frontend && npm run build
+          name: Run Frontend Tests
+          command: |
+            cd frontend/frontend
+            npm test -- --watchAll=false
       - run:
-          name: Run tests
-          command: cd frontend/frontend && npm test -- --watchAll=false
+          name: Build Frontend
+          command: |
+            cd frontend/frontend
+            npm run build
+      - store_artifacts:
+          path: frontend/frontend/build
+          destination: build
+
+      # Backend Setup
+      - run:
+          name: Install Backend Dependencies
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: Verify Backend Starts
+          command: |
+            cd backend
+            npm start &
+            sleep 5  # Wait for server to start
+            curl --fail http://localhost:3001 || exit 1
 
 workflows:
-  build_and_test:
+  build-and-test-workflow:
     jobs:
-      - build
+      - build-and-test

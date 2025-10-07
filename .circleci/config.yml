@@ -1,0 +1,22 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:18.17  # Node version for React
+    steps:
+      - checkout  # Pull your code from GitHub
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Run build
+          command: npm run build
+      - run:
+          name: Run tests
+          command: npm test -- --watchAll=false
+
+workflows:
+  build_and_test:
+    jobs:
+      - build

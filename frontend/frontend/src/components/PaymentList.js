@@ -7,7 +7,7 @@ export default function PaymentsList() {
   useEffect(() => {
     async function fetchPayments() {
       try {
-        const res = await fetch("http://localhost:3001/payment/", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/payment/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -23,7 +23,7 @@ export default function PaymentsList() {
     if (!window.confirm("Are you sure you want to delete this payment?")) return;
 
     try {
-      const res = await fetch(`http://localhost:3001/payment/${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/payment/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

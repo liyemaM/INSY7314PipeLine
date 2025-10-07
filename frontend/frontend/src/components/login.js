@@ -12,7 +12,7 @@ export default function Login({ setToken }) {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:3001/user/login", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/user/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, accountNumber, password }),

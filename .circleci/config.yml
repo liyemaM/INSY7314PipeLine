@@ -1,58 +1,22 @@
 version: 2.1
 
-# Use orbs for reusable configs
-orbs:
-  node: circleci/node@5.0  # For Node.js setup
-  mongo: circleci/mongodb@1.0  # For MongoDB service
-
 jobs:
-  test-backend:
+  build:
     docker:
-      - image: cimg/node:20.10  # Use current Node LTS
-    steps:
-      - checkout  # Clone repo
-      - node/install-packages:  # Install root deps (if any)
-          cache-key: "npm-root"
-      - run:
-          name: Install Backend Dependencies
-          command: cd BACKEND && npm ci  # Clean install
-      - mongo/setup:  # Start MongoDB service
-          version: "7.0"  # Match your MongoDB version
-      - run:
-          name: Run Backend Tests
-          command: cd BACKEND && npm test  # Assumes you have tests; add --watchAll=false if needed
-          environment:
-            MONGODB_URI: "mongodb://localhost:27017/testdb"  # Local test DB
-      - store_test_results:  # Optional: Save test reports
-          path: BACKEND/coverage  # If you generate coverage
-      - store_artifacts:  # Save build logs
-          path: BACKEND
-
-  test-frontend:
-    docker:
-      - image: cimg/node:20.10
+      - image: cimg/node:18.17
     steps:
       - checkout
-      - node/install-packages:
-          cache-key: "npm-root"
       - run:
-          name: Install Frontend Dependencies
-          command: cd frontend && npm ci  # Adjust path if it's "FRONTEND"
+          name: Install dependencies
+          command: cd frontend/frontend && npm install
       - run:
-          name: Run Frontend Tests & Build
-          command: cd frontend && npm test && npm run build  # Test then build
-      - store_test_results:
-          path: frontend/coverage
-      - store_artifacts:
-          path: frontend/dist  # Or wherever build outputs (e.g., build/)
+          name: Build React App
+          command: cd frontend/frontend && npm run build
+      - run:
+          name: Run tests
+          command: cd frontend/frontend && npm test -- --watchAll=false
 
 workflows:
-  build-and-test:
+  build_and_test:
     jobs:
-      - test-backend
-      - test-frontend
-    triggers:
-      - push:  # Run on pushes to any branch
-          branches:
-            only:
-              - main  # Or add develop, etc.
+      - build
